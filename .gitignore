@@ -1,2 +1,4 @@
 *.tldr
 *.DS_Store
+/img
+*.vscode
