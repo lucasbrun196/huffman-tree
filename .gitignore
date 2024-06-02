@@ -1,1 +1,2 @@
-*.tldr
+*.DS_Store
+/.vscode
