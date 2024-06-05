@@ -42,12 +42,12 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
 }
 
 //just to teste:
-// void showLinkedList(Node *first){
-//     if(!first) return;
-//     cout << first->frequency << " - ";
-//     cout << first->word << endl;
-//     showLinkedList(first->next);
-// }
+void showLinkedList(Node *first){
+    if(!first) return;
+    cout << first->frequency << " - ";
+    cout << first->word << endl;
+    showLinkedList(first->next);
+}
 
 
 
@@ -90,7 +90,7 @@ int main(){
     }
 
     //just to teste:
-    //showLinkedList(nodeFirst);
+    showLinkedList(nodeFirst);
     
 
     return 0;
