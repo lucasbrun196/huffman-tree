@@ -73,7 +73,7 @@ int main(){
         }
     }
     
-    
+    //teste
     
     Node *nodeFirst = new Node;
     int contAux = 0;
