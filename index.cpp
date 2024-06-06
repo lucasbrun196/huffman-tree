@@ -7,13 +7,22 @@ using namespace std;
 struct Node{
     int frequency;
     char word;
-    Node *next;
+    Node *next, *right, *left;
 };
 
 
 bool charSearch(const char &ch, const map<char, int> &frequency_map) {
     return frequency_map.find(ch) != frequency_map.end();
 }
+
+
+//TO FIX: Arrumar a ordenacao da lista encadeada antes de fazer a criação da arvore
+/*
+Posiveis soluções:
+    1: Usar unordered_map ao inves de map
+    2: Problema na criação/ordenação da linkedList, verificar nas funções
+        recursiveInsertToLinkedList() e  sortedLinkedList()
+*/
 
 void recursiveInsertToLinkedList(Node *&nodeFirst, Node *&nodeToInsert){
     if(!nodeFirst->next){
@@ -41,14 +50,38 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
     }
 }
 
-//just to teste:
-void showLinkedList(Node *first){
-    if(!first) return;
-    cout << first->frequency << " - ";
-    cout << first->word << endl;
-    showLinkedList(first->next);
-}
 
+
+//just to test:
+// void showLinkedList(Node *first){
+//     if(!first) return;
+//     cout << first->frequency << " - ";
+//     cout << first->word << endl;
+//     showLinkedList(first->next);
+// }
+
+//just to test:
+// void preOrder(Node *&root){
+//     if(!root) return;
+//     cout << root->word << endl;
+//     preOrder(root->left);
+//     preOrder(root->right);
+// }
+
+void creteTree(Node *&firtsNode){
+    if(!firtsNode->next){
+        //preOrder(firtsNode);
+        return;
+    };
+    Node *secondNode = firtsNode->next;
+    Node *subTree = new Node;
+    subTree->word = '+';
+    subTree->frequency = firtsNode->frequency + secondNode->frequency;
+    subTree->left = firtsNode;
+    subTree->right = secondNode;
+    recursiveInsertToLinkedList(firtsNode, subTree);
+    creteTree(secondNode->next);
+}
 
 
 int main(){
@@ -89,9 +122,12 @@ int main(){
         contAux++;
     }
 
+
+    creteTree(nodeFirst);
+
     //just to teste:
-    showLinkedList(nodeFirst);
-    
+    //showLinkedList(nodeFirst);
+    arq.close();
 
     return 0;
 }
