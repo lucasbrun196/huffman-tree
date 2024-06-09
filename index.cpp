@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <map>
+#include <vector>
 
 using namespace std;
 
@@ -10,19 +10,20 @@ struct Node{
     Node *next, *right, *left;
 };
 
+struct Frequency{
+    char character;
+    int frequency;
+};
 
-bool charSearch(const char &ch, const map<char, int> &frequency_map) {
-    return frequency_map.find(ch) != frequency_map.end();
+int charIsInVecto(vector<Frequency> freq_vec, char ch){
+    for(int i = 0; i < freq_vec.size(); ++i){
+        if(freq_vec[i].character == ch){
+            return i;
+        }
+    }
+    return -1;
 }
 
-
-//TO FIX: Arrumar a ordenacao da lista encadeada antes de fazer a criação da arvore
-/*
-Posiveis soluções:
-    1: Usar unordered_map ao inves de map
-    2: Problema na criação/ordenação da linkedList, verificar nas funções
-        recursiveInsertToLinkedList() e  sortedLinkedList()
-*/
 
 void recursiveInsertToLinkedList(Node *&nodeFirst, Node *&nodeToInsert){
     if(!nodeFirst->next){
@@ -42,6 +43,8 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
     Node *node = new Node;
     node->frequency = fqc;
     node->word = wd;
+    node->left = nullptr;
+    node->right = nullptr;
     if(node->frequency < nodeFirst->frequency){
         node->next = nodeFirst;
         nodeFirst = node;
@@ -52,7 +55,7 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
 
 
 
-//just to test:
+//just to test linked list:
 // void showLinkedList(Node *first){
 //     if(!first) return;
 //     cout << first->frequency << " - ";
@@ -60,7 +63,7 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
 //     showLinkedList(first->next);
 // }
 
-//just to test:
+//just to test tree:
 // void preOrder(Node *&root){
 //     if(!root) return;
 //     cout << root->word << endl;
@@ -87,8 +90,8 @@ void creteTree(Node *&firtsNode){
 int main(){
     ifstream arq;
     char ch;
-    int count_char;
-    map<char, int> frequency_map;
+    int index;
+    vector<Frequency> frequency_vec;
     
 
     arq.open("./txt/lorem.txt");
@@ -96,28 +99,34 @@ int main(){
     if(!arq){
         cout << "Erro ao abrir arquivo!\n";
     }
-
     
     while(arq.get(ch)){
-        if(charSearch(ch, frequency_map)){
-            frequency_map[ch]++;
+        index = charIsInVecto(frequency_vec, ch);
+        if(index == -1){
+            Frequency freq;
+            freq.character = ch;
+            freq.frequency = 1;
+            frequency_vec.push_back(freq);
         }else{
-            frequency_map[ch] = 1;
+            frequency_vec[index].frequency++;
         }
-    }
+    }   
     
+
     
     
     Node *nodeFirst = new Node;
     int contAux = 0;
-    for(auto conj : frequency_map){
+    for(auto conj : frequency_vec){
         if(contAux == 0){
-            nodeFirst->word = conj.first;
-            nodeFirst->frequency = conj.second;
+            nodeFirst->word = conj.character;
+            nodeFirst->frequency = conj.frequency;
             nodeFirst->next = nullptr;
+            nodeFirst->left = nullptr;
+            nodeFirst->right = nullptr;
         }
         else{
-            sortedLinkedList(conj.first, conj.second, nodeFirst);
+            sortedLinkedList(conj.character, conj.frequency, nodeFirst);
         }
         contAux++;
     }

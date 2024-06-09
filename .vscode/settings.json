@@ -8,6 +8,8 @@
         "tuple": "cpp",
         "variant": "cpp",
         "complex": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "fstream": "cpp",
+        "vector": "cpp"
     }
 }
