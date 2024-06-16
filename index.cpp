@@ -7,6 +7,7 @@ using namespace std;
 struct Node{
     int frequency;
     char word;
+    string code;
     Node *next, *right, *left;
 };
 
@@ -15,7 +16,7 @@ struct Frequency{
     int frequency;
 };
 
-int charIsInVecto(vector<Frequency> freq_vec, char ch){
+int charIsInVector(vector<Frequency> freq_vec, char ch){
     for(int i = 0; i < freq_vec.size(); ++i){
         if(freq_vec[i].character == ch){
             return i;
@@ -24,13 +25,12 @@ int charIsInVecto(vector<Frequency> freq_vec, char ch){
     return -1;
 }
 
-
 void recursiveInsertToLinkedList(Node *&nodeFirst, Node *&nodeToInsert){
     if(!nodeFirst->next){
         nodeFirst->next = nodeToInsert;
         return;
     }
-    if(nodeFirst->next->frequency > nodeToInsert->frequency){
+    if(nodeFirst->next->frequency > nodeToInsert->frequency){ 
         nodeToInsert->next = nodeFirst->next;
         nodeFirst->next = nodeToInsert;
         return;
@@ -45,6 +45,7 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
     node->word = wd;
     node->left = nullptr;
     node->right = nullptr;
+    node->code = "";
     if(node->frequency < nodeFirst->frequency){
         node->next = nodeFirst;
         nodeFirst = node;
@@ -52,8 +53,6 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
         recursiveInsertToLinkedList(nodeFirst, node);
     }
 }
-
-
 
 //just to test linked list:
 // void showLinkedList(Node *first){
@@ -71,7 +70,7 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
 //     preOrder(root->right);
 // }
 
-void creteTree(Node *&firtsNode){
+void createTree(Node *&firtsNode){
     if(!firtsNode->next){
         //preOrder(firtsNode);
         return;
@@ -83,9 +82,52 @@ void creteTree(Node *&firtsNode){
     subTree->left = firtsNode;
     subTree->right = secondNode;
     recursiveInsertToLinkedList(firtsNode, subTree);
-    creteTree(secondNode->next);
+    createTree(firtsNode);
 }
 
+void encodeTree(Node *&firstNode, string code){
+    if(!firstNode) return;
+
+    if(!firstNode->left && !firstNode->right){
+        firstNode->code = code;
+        return;
+    }   
+    encodeTree(firstNode->left, code + "0"); 
+    encodeTree(firstNode->right, code + "1");
+}
+
+void exportNode(std::ofstream& dot, Node* node) {
+    if (!node) return;
+    if (!node->left && !node->right) {
+        dot << "\"" << node->word << node->frequency << "\" [shape=record, label=\"{{" << node->word << "|" << node->frequency << "}|{" << node->code << "}}\"];\n";
+    }
+    else {
+        dot << "\"" << node->word << node->frequency << "\" [label=\"" << node->frequency << "\"];\n";
+    }
+    if (node->left) {
+        dot << "\"" << node->word << node->frequency << "\" -> \"" << node->left->word << node->left->frequency << "\" [label=0];\n";
+        exportNode(dot, node->left);
+    }
+    if (node->right) {
+        dot << "\"" << node->word << node->frequency << "\" -> \"" << node->right->word << node->right->frequency << "\" [label=1];\n";
+        exportNode(dot, node->right);
+    }
+}
+
+void exportHuffmanTreeToDot(Node* root, const std::string& filename) {
+    std::ofstream dot(filename);
+    dot << "digraph G {\n";
+
+    exportNode(dot, root);
+
+    dot << "}\n";
+}
+
+void draw(Node* root){
+    exportHuffmanTreeToDot(root, "huffmanTree.dot");
+    std::system("dot -Tpng huffmanTree.dot -o graph.png"); //Windows
+    //std::system("dot -Tx11 huffmanTree.dot"); // Linux
+}
 
 int main(){
     ifstream arq;
@@ -93,7 +135,6 @@ int main(){
     int index;
     vector<Frequency> frequency_vec;
     
-
     arq.open("./txt/lorem.txt");
     
     if(!arq){
@@ -101,7 +142,7 @@ int main(){
     }
     
     while(arq.get(ch)){
-        index = charIsInVecto(frequency_vec, ch);
+        index = charIsInVector(frequency_vec, ch);
         if(index == -1){
             Frequency freq;
             freq.character = ch;
@@ -112,9 +153,6 @@ int main(){
         }
     }   
     
-
-    
-    
     Node *nodeFirst = new Node;
     int contAux = 0;
     for(auto conj : frequency_vec){
@@ -124,15 +162,19 @@ int main(){
             nodeFirst->next = nullptr;
             nodeFirst->left = nullptr;
             nodeFirst->right = nullptr;
+            nodeFirst->code = "";
         }
         else{
-            sortedLinkedList(conj.character, conj.frequency, nodeFirst);
+            sortedLinkedList(conj.character, conj.frequency, nodeFirst); 
         }
         contAux++;
     }
 
+    createTree(nodeFirst);
 
-    creteTree(nodeFirst);
+    encodeTree(nodeFirst, "");
+
+    draw(nodeFirst);
 
     //just to teste:
     //showLinkedList(nodeFirst);
