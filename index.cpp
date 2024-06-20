@@ -148,19 +148,18 @@ int calculateNewSize(const vector<int> &dict){
     return totalBits;
 }
 
-void encodedTextSize(Node *first, vector<int> auxi){
-    if(!first->next){
-        int tamanho = calculateNewSize(auxi);
-        cout << tamanho << " bits." << endl;
-        return;
-    }
-
-    if(first->code.size() > 0){
+int encodedTextSize(Node *first, vector<int> auxi){
+    if(first == nullptr) return 0;
+    if (first->code.size() > 0) {
         int tam = first->frequency * first->code.size();
         auxi.push_back(tam);
     }
 
-    encodedTextSize(first->next, auxi);
+    if (!first->next) {
+        return calculateNewSize(auxi); // Se for o último nó, calcule o tamanho total
+    }
+
+    return encodedTextSize(first->next, auxi); // Continue na lista
 }
 
 int calculateOriginalSize(const vector<Frequency>& vec){
@@ -172,6 +171,13 @@ int calculateOriginalSize(const vector<Frequency>& vec){
         totalBits += freq.frequency * charBits;
     }
     return totalBits;
+}
+
+void sizeDifference(int tamOriginal, int tamEncoded){
+    int perc = ((tamOriginal - tamEncoded) * 100) / tamOriginal;
+    int dif = 100 - perc;
+
+    cout << "A diferenca percentual entre os tamanhos e de " << dif << "%." << endl;
 }
 
 int main(){
@@ -225,8 +231,11 @@ int main(){
     int tamOriginal = calculateOriginalSize(frequency_vec);
     cout << "Tamanho original do arquivo: " << tamOriginal << " bits" << endl;
 
-    cout << "Tamanho codificado do arquivo: ";
-    encodedTextSize(nodeFirst, auxiliar_tamanho);
+    int tamCod = encodedTextSize(nodeFirst, auxiliar_tamanho);
+    
+    cout << "Tamanho codificado do arquivo: " << tamCod << " bits" << endl;
+
+    sizeDifference(tamOriginal, encodedTextSize(nodeFirst, auxiliar_tamanho));
 
     arq.close();
 
