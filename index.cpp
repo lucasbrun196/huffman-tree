@@ -52,6 +52,7 @@ void sortedLinkedList(const wchar_t wd, const int fqc, Node *&nodeFirst){
     node->left = nullptr;
     node->right = nullptr;
     node->code = L"";
+    node->next = nullptr;
     if(node->frequency < nodeFirst->frequency){
         node->next = nodeFirst;
         nodeFirst = node;
