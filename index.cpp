@@ -1,3 +1,7 @@
+/*
+    NOMES: Manuela Antunes e Lucas Brun
+*/
+
 #include <iostream>
 #include <fstream>
 #include <vector>
