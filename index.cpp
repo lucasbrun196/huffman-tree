@@ -55,24 +55,29 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
 }
 
 //just to test linked list:
-// void showLinkedList(Node *first){
-//     if(!first) return;
-//     cout << first->frequency << " - ";
-//     cout << first->word << endl;
-//     showLinkedList(first->next);
-// }
+void showLinkedList(Node *first){
+    if(!first) return;
+    cout << first->frequency << " - ";
+    cout << first->word << endl;
+    cout << first->next->word << endl;
+    cout << first->code << endl;
+
+    showLinkedList(first->next);
+}
 
 //just to test tree:
-// void preOrder(Node *&root){
-//     if(!root) return;
-//     cout << root->word << endl;
-//     preOrder(root->left);
-//     preOrder(root->right);
-// }
+void preOrder(Node *&root){
+    if(!root) return;
+    cout << root->word << ": " << root->code << endl;
+
+    preOrder(root->left);
+    preOrder(root->right);
+}
 
 void createTree(Node *&firtsNode){
-    if(!firtsNode->next){
-        //preOrder(firtsNode);
+     if(!firtsNode->next){
+        // preOrder(firtsNode);
+        // cout << firtsNode->word << " -> " << firtsNode->left->word << " | " << firtsNode->right->word << endl;
         return;
     };
     Node *secondNode = firtsNode->next;
@@ -82,18 +87,26 @@ void createTree(Node *&firtsNode){
     subTree->left = firtsNode;
     subTree->right = secondNode;
     recursiveInsertToLinkedList(firtsNode, subTree);
-    createTree(firtsNode);
+    createTree(secondNode->next);
 }
 
-void encodeTree(Node *&firstNode, string code){
-    if(!firstNode) return;
+void encodeTree(Node *&root, string code){
+    if(!root) return;
 
-    if(!firstNode->left && !firstNode->right){
-        firstNode->code = code;
+    cout << "OIIII:  " << root->next->word << endl;
+
+    if(!root->left && !root->right){
+        root->code = code;
         return;
-    }   
-    encodeTree(firstNode->left, code + "0"); 
-    encodeTree(firstNode->right, code + "1");
+    } else {
+        if(root->left){
+            cout << "Fui pra esquerda!" << endl;
+            encodeTree(root->left, code + "0");
+        } else {
+            cout << "Fui pra direita!" << endl;
+            encodeTree(root->right, code + "1");
+        }
+    }
 }
 
 void exportNode(std::ofstream& dot, Node* node) {
@@ -172,9 +185,17 @@ int main(){
 
     createTree(nodeFirst);
 
+    cout << "LISTA: " << endl;
+
     encodeTree(nodeFirst, "");
 
-    draw(nodeFirst);
+    showLinkedList(nodeFirst);
+
+    // cout << "OOOIIIIII3" << endl;
+
+    // cout << nodeFirst->word << ": " << nodeFirst->code << endl;
+
+    // draw(nodeFirst);
 
     //just to teste:
     //showLinkedList(nodeFirst);
