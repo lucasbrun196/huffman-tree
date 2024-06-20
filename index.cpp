@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -13,6 +14,11 @@ struct Node{
 
 struct Frequency{
     char character;
+    int frequency;
+};
+
+struct Size{
+    string code;
     int frequency;
 };
 
@@ -57,10 +63,10 @@ void sortedLinkedList(const char wd, const int fqc, Node *&nodeFirst){
 //just to test linked list:
 void showLinkedList(Node *first){
     if(!first) return;
-    cout << first->frequency << " - ";
+    
     cout << first->word << endl;
-    cout << first->next->word << endl;
-    cout << first->code << endl;
+    cout << first->frequency << " - ";
+    cout << first->code.size() << endl;
 
     showLinkedList(first->next);
 }
@@ -74,39 +80,17 @@ void preOrder(Node *&root){
     preOrder(root->right);
 }
 
-void createTree(Node *&firtsNode){
-     if(!firtsNode->next){
-        // preOrder(firtsNode);
-        // cout << firtsNode->word << " -> " << firtsNode->left->word << " | " << firtsNode->right->word << endl;
+
+void encodeTree(Node *&firstNode, string code, vector<string> code_aux){
+    if(!firstNode) return;
+
+    if(!firstNode->left && !firstNode->right){
+        firstNode->code = code;
+        code_aux.push_back(firstNode->code);
         return;
-    };
-    Node *secondNode = firtsNode->next;
-    Node *subTree = new Node;
-    subTree->word = '+';
-    subTree->frequency = firtsNode->frequency + secondNode->frequency;
-    subTree->left = firtsNode;
-    subTree->right = secondNode;
-    recursiveInsertToLinkedList(firtsNode, subTree);
-    createTree(secondNode->next);
-}
-
-void encodeTree(Node *&root, string code){
-    if(!root) return;
-
-    cout << "OIIII:  " << root->next->word << endl;
-
-    if(!root->left && !root->right){
-        root->code = code;
-        return;
-    } else {
-        if(root->left){
-            cout << "Fui pra esquerda!" << endl;
-            encodeTree(root->left, code + "0");
-        } else {
-            cout << "Fui pra direita!" << endl;
-            encodeTree(root->right, code + "1");
-        }
     }
+    encodeTree(firstNode->left, code + "0", code_aux); 
+    encodeTree(firstNode->right, code + "1", code_aux);
 }
 
 void exportNode(std::ofstream& dot, Node* node) {
@@ -142,11 +126,69 @@ void draw(Node* root){
     //std::system("dot -Tx11 huffmanTree.dot"); // Linux
 }
 
+void createTree(Node *&firtsNode, vector<int> freq_aux, vector<string> code_aux){
+     if(!firtsNode->next){
+        encodeTree(firtsNode, "", code_aux);
+        freq_aux.push_back(firtsNode->frequency);
+        draw(firtsNode);
+        // preOrder(firtsNode);
+        return;
+    };
+    Node *secondNode = firtsNode->next;
+    Node *subTree = new Node;
+    subTree->word = '+';
+    subTree->frequency = firtsNode->frequency + secondNode->frequency;
+    subTree->left = firtsNode;
+    subTree->right = secondNode;
+
+    recursiveInsertToLinkedList(firtsNode, subTree);
+    createTree(secondNode->next, freq_aux, code_aux);
+}
+
+int calculateNewSize(const vector<int> &dict){
+    int totalBits = 0;
+    for(const auto &freq:dict){
+        totalBits += freq;
+    }
+
+    return totalBits;
+}
+
+void encodedTextSize(Node *first, vector<int> auxi){
+    if(!first->next){
+        int tamanho = calculateNewSize(auxi);
+        cout << tamanho << " bits." << endl;
+        return;
+    }
+
+    if(first->code.size() > 0){
+        int tam = first->frequency * first->code.size();
+        auxi.push_back(tam);
+    }
+
+    encodedTextSize(first->next, auxi);
+}
+
+//TODO
+// int calculatedOriginalSize(const vector<Frequency>& vec){
+//     int totalBits = 0;
+//     for(const auto& freq : vec) {
+//         //sizeof(wchar_t) vai verificar o nº de bytes que o caracter unicode ocupa na memória
+//         //multiplica por 8 (bits)
+//         int charBits = sizeof(wchar_t) * 8;
+//         totalBits += freq.frequency * charBits;
+//     }
+//     return totalBits;
+// }
+
 int main(){
     ifstream arq;
     char ch;
     int index;
     vector<Frequency> frequency_vec;
+    vector<int> auxiliar_frequencia;
+    vector<string> auxiliar_codificacao;
+    vector<int> auxiliar_tamanho;
     
     arq.open("./txt/lorem.txt");
     
@@ -167,7 +209,9 @@ int main(){
     }   
     
     Node *nodeFirst = new Node;
+
     int contAux = 0;
+
     for(auto conj : frequency_vec){
         if(contAux == 0){
             nodeFirst->word = conj.character;
@@ -183,22 +227,14 @@ int main(){
         contAux++;
     }
 
-    createTree(nodeFirst);
+    createTree(nodeFirst, auxiliar_frequencia, auxiliar_codificacao);
 
-    cout << "LISTA: " << endl;
+    // int tamOriginal = calculatedOriginalSize(frequency_vec);
+    // cout << "Tamanho original do arquivo: " << tamOriginal << " bits" << endl;
 
-    encodeTree(nodeFirst, "");
+    cout << "Tamanho codificado do arquivo: ";
+    encodedTextSize(nodeFirst, auxiliar_tamanho);
 
-    showLinkedList(nodeFirst);
-
-    // cout << "OOOIIIIII3" << endl;
-
-    // cout << nodeFirst->word << ": " << nodeFirst->code << endl;
-
-    // draw(nodeFirst);
-
-    //just to teste:
-    //showLinkedList(nodeFirst);
     arq.close();
 
     return 0;
