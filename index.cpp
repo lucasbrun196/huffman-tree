@@ -74,13 +74,14 @@ void sortedLinkedList(const wchar_t wd, const int fqc, Node *&nodeFirst){
 //     showLinkedList(first->next);
 // }
 
-//just to test tree:
-// void preOrder(Node *&root){
-//     if(!root) return;
-//     cout << root->word << L": " << root->code << endl;
-//     preOrder(root->left);
-//     preOrder(root->right);
-// }
+void preOrder(Node *&root){
+    if(!root) return;
+    if(root->word != '+'){
+        wcout << root->word << " -- " << root->frequency << " -- " << root->code << endl;
+    }
+    preOrder(root->left);
+    preOrder(root->right);
+}
 
 void encodeTree(Node *&firstNode, wstring code){
     if(!firstNode) return;
@@ -93,44 +94,11 @@ void encodeTree(Node *&firstNode, wstring code){
     encodeTree(firstNode->right, code + L"1");
 }
 
-void exportNode(wofstream& dot, Node* node) {
-    if (!node) return;
-    if (!node->left && !node->right) {
-        dot << L"\"" << node->word << node->frequency << L"\" [shape=record, label=\"{{" << node->word << L"|" << node->frequency << L"}|{" << node->code << L"}}\"];\n";
-    }
-    else {
-        dot << L"\"" << node->word << node->frequency << L"\" [label=\"" << node->frequency << L"\"];\n";
-    }
-    if (node->left) {
-        dot << L"\"" << node->word << node->frequency << L"\" -> \"" << node->left->word << node->left->frequency << L"\" [label=0];\n";
-        exportNode(dot, node->left);
-    }
-    if (node->right) {
-        dot << L"\"" << node->word << node->frequency << L"\" -> \"" << node->right->word << node->right->frequency << L"\" [label=1];\n";
-        exportNode(dot, node->right);
-    }
-}
-
-void exportHuffmanTreeToDot(Node* root, auto& filename) {
-    wofstream dot(filename);
-    dot << L"digraph G {\n";
-
-    exportNode(dot, root);
-
-    dot << L"}\n";
-}
-
-void draw(Node* root){
-    exportHuffmanTreeToDot(root, L"huffmanTree.dot");
-    system("dot -Tpng huffmanTree.dot -o graph.png"); //Windows
-    //std::system("dot -Tx11 huffmanTree.dot"); // Linux
-}
 
 void createTree(Node *&firtsNode){
      if(!firtsNode->next){
         encodeTree(firtsNode, L"");
-        draw(firtsNode);
-        // preOrder(firtsNode);
+        preOrder(firtsNode);
         return;
     };
     Node *secondNode = firtsNode->next;
@@ -146,7 +114,7 @@ void createTree(Node *&firtsNode){
 
 int calculateNewSize(const vector<int> &dict){
     int totalBits = 0;
-    for(const auto &freq:dict){
+    for(const auto &freq : dict){
         totalBits += freq;
     }
 
@@ -235,13 +203,9 @@ int main(){
 
     int tamOriginal = calculateOriginalSize(frequency_vec);
     cout << "Tamanho original do arquivo: " << tamOriginal << " bits" << endl;
-
     int tamCod = encodedTextSize(nodeFirst, auxiliar_tamanho);
-    
     cout << "Tamanho codificado do arquivo: " << tamCod << " bits" << endl;
-
     sizeDifference(tamOriginal, encodedTextSize(nodeFirst, auxiliar_tamanho));
-
     arq.close();
 
     return 0;

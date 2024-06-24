@@ -10,6 +10,7 @@
         "complex": "cpp",
         "iostream": "cpp",
         "fstream": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "ostream": "cpp"
     }
 }
