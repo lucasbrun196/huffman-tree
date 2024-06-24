@@ -93,7 +93,7 @@ void encodeTree(Node *&firstNode, wstring code){
     encodeTree(firstNode->right, code + L"1");
 }
 
-void exportNode(std::wofstream& dot, Node* node) {
+void exportNode(wofstream& dot, Node* node) {
     if (!node) return;
     if (!node->left && !node->right) {
         dot << L"\"" << node->word << node->frequency << L"\" [shape=record, label=\"{{" << node->word << L"|" << node->frequency << L"}|{" << node->code << L"}}\"];\n";
@@ -112,7 +112,7 @@ void exportNode(std::wofstream& dot, Node* node) {
 }
 
 void exportHuffmanTreeToDot(Node* root, auto& filename) {
-    std::wofstream dot(filename);
+    wofstream dot(filename);
     dot << L"digraph G {\n";
 
     exportNode(dot, root);
@@ -122,7 +122,7 @@ void exportHuffmanTreeToDot(Node* root, auto& filename) {
 
 void draw(Node* root){
     exportHuffmanTreeToDot(root, L"huffmanTree.dot");
-    std::system("dot -Tpng huffmanTree.dot -o graph.png"); //Windows
+    system("dot -Tpng huffmanTree.dot -o graph.png"); //Windows
     //std::system("dot -Tx11 huffmanTree.dot"); // Linux
 }
 
